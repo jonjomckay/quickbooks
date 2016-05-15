@@ -197,13 +197,17 @@ class DataService
      * @param  string|null      $query
      * @return QueryResponse
      */
-    public function query($query = null)
+    public function query($query = null, $minorVersion = null)
     {
         if ($query === null) {
             $query = "select * from {$this->entity}";
         }
 
         $uri = $this->getRequestUrl('query') . '?query=' . urlencode($query);
+
+        if ($minorVersion !== null) {
+            $uri = $uri . '&minorversion=' . $minorVersion;
+        }
 
         return $this->request('GET', $uri);
     }
