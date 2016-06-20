@@ -145,9 +145,15 @@ class DataService
      * @param  array            $payload
      * @return Entity
      */
-    public function create(array $payload)
+    public function create(array $payload, $minorVersion = null)
     {
-        return $this->request('POST', $this->getRequestUrl($this->entity), $payload);
+        $uri = $this->getRequestUrl($this->entity);
+
+        if ($minorVersion !== null) {
+            $uri = $uri . '&minorversion=' . $minorVersion;
+        }
+
+        return $this->request('POST', $uri, $payload);
     }
 
     /**
@@ -169,9 +175,13 @@ class DataService
      * @param  array            $payload
      * @return Entity
      */
-    public function update(array $payload)
+    public function update(array $payload, $minorVersion = null)
     {
         $uri = $this->getRequestUrl($this->entity) . '?operation=update';
+
+        if ($minorVersion !== null) {
+            $uri = $uri . '&minorversion=' . $minorVersion;
+        }
 
         return $this->request('POST', $uri, $payload);
     }
