@@ -31,7 +31,7 @@ class DataService
 
     /**
      * Construct data service
-     * 
+     *
      * @param string $consumer_key
      * @param string $consumer_key_secret
      * @param string $access_token
@@ -45,11 +45,11 @@ class DataService
         $this->access_token = $access_token;
         $this->access_token_secret = $access_token_secret;
         $this->realmId = $realmId;
-    } 
+    }
 
     /**
      * Return api url
-     * 
+     *
      * @return string
      */
     public function getApiUrl()
@@ -59,7 +59,7 @@ class DataService
 
     /**
      * Return http client
-     * 
+     *
      * @return GuzzleClient
      */
     public function createHttpClient()
@@ -69,7 +69,7 @@ class DataService
 
     /**
      * Return oauth server
-     * 
+     *
      * @return Quickbooks
      */
     public function createServer()
@@ -83,7 +83,7 @@ class DataService
 
     /**
      * Return token credentials
-     * 
+     *
      * @return TokenCredentials
      */
     public function getTokenCredentials()
@@ -97,7 +97,7 @@ class DataService
 
     /**
      * Set user agent
-     * 
+     *
      * @param string|null $user_agent
      */
     public function setUserAgent($user_agent = null)
@@ -109,7 +109,7 @@ class DataService
 
     /**
      * Return user agent
-     * 
+     *
      * @return string
      */
     public function getUserAgent()
@@ -119,7 +119,7 @@ class DataService
 
     /**
      * Set entity
-     * 
+     *
      * @param string $entity
      */
     public function setEntity($entity)
@@ -131,7 +131,7 @@ class DataService
 
     /**
      * Return entity url
-     * 
+     *
      * @return string
      */
     public function getRequestUrl($slug)
@@ -141,18 +141,18 @@ class DataService
 
     /**
      * Send create request
-     * 
+     *
      * @param  array            $payload
      * @return Entity
      */
-    public function create(array $payload, $minorVersion = null)
+    public function create(array $payload)
     {
-        return $this->request('POST', $this->getRequestUrl($this->entity), $payload, $minorVersion);
+        return $this->request('POST', $this->getRequestUrl($this->entity), $payload);
     }
 
     /**
      * Send read request
-     * 
+     *
      * @param  int              $id
      * @return Entity
      */
@@ -165,20 +165,20 @@ class DataService
 
     /**
      * Send update request
-     * 
+     *
      * @param  array            $payload
      * @return Entity
      */
-    public function update(array $payload, $minorVersion = null)
+    public function update(array $payload)
     {
         $uri = $this->getRequestUrl($this->entity) . '?operation=update';
 
-        return $this->request('POST', $uri, $payload, $minorVersion);
+        return $this->request('POST', $uri, $payload);
     }
 
     /**
      * Send delete request
-     * 
+     *
      * @param  array            $payload
      * @return null
      */
@@ -193,7 +193,7 @@ class DataService
 
     /**
      * Send query request
-     * 
+     *
      * @param  string|null      $query
      * @return QueryResponse
      */
@@ -205,17 +205,21 @@ class DataService
 
         $uri = $this->getRequestUrl('query') . '?query=' . urlencode($query);
 
-        return $this->request('GET', $uri, null, $minorVersion);
+        if ($minorVersion !== null) {
+            $uri = $uri . '&minorversion=' . $minorVersion;
+        }
+
+        return $this->request('GET', $uri);
     }
 
     /**
      * Return headers for request
-     * 
+     *
      * @param  string           $method
      * @param  string           $uri
      * @return array
      */
-    public function getHeaders($method, $uri) 
+    public function getHeaders($method, $uri)
     {
         $server = $this->createServer();
 
@@ -233,25 +237,21 @@ class DataService
 
     /**
      * Request
-     * 
+     *
      * @param  string $method
      * @param  string $uri
      * @param  string|array      $body
      * @return Entity|QueryResponse
      * @throws \Exception
      */
-    public function request($method, $uri, array $body = null, $minorVersion = null)
-    {   
+    public function request($method, $uri, array $body = null)
+    {
         $client = $this->createHttpClient();
 
         $headers = $this->getHeaders($method, $uri);
 
         if ($body !== null) {
             $body = json_encode($body);
-        }
-
-        if ($minorVersion !== null) {
-            $uri = $uri . '&minorversion=' . $minorVersion;
         }
 
         try {
