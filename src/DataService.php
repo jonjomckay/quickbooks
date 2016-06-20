@@ -145,9 +145,9 @@ class DataService
      * @param  array            $payload
      * @return Entity
      */
-    public function create(array $payload)
+    public function create(array $payload, $minorVersion = null)
     {
-        return $this->request('POST', $this->getRequestUrl($this->entity), $payload);
+        return $this->request('POST', $this->getRequestUrl($this->entity), $payload, $minorVersion);
     }
 
     /**
@@ -169,11 +169,11 @@ class DataService
      * @param  array            $payload
      * @return Entity
      */
-    public function update(array $payload)
+    public function update(array $payload, $minorVersion = null)
     {
         $uri = $this->getRequestUrl($this->entity) . '?operation=update';
 
-        return $this->request('POST', $uri, $payload);
+        return $this->request('POST', $uri, $payload, $minorVersion);
     }
 
     /**
@@ -205,11 +205,7 @@ class DataService
 
         $uri = $this->getRequestUrl('query') . '?query=' . urlencode($query);
 
-        if ($minorVersion !== null) {
-            $uri = $uri . '&minorversion=' . $minorVersion;
-        }
-
-        return $this->request('GET', $uri);
+        return $this->request('GET', $uri, null, $minorVersion);
     }
 
     /**
@@ -244,7 +240,7 @@ class DataService
      * @return Entity|QueryResponse
      * @throws \Exception
      */
-    public function request($method, $uri, array $body = null)
+    public function request($method, $uri, array $body = null, $minorVersion = null)
     {   
         $client = $this->createHttpClient();
 
@@ -252,6 +248,10 @@ class DataService
 
         if ($body !== null) {
             $body = json_encode($body);
+        }
+
+        if ($minorVersion !== null) {
+            $uri = $uri . '&minorversion=' . $minorVersion;
         }
 
         try {
