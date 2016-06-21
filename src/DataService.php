@@ -150,7 +150,7 @@ class DataService
         $uri = $this->getRequestUrl($this->entity);
 
         if ($minorVersion !== null) {
-            $uri = $uri . '&minorversion=' . $minorVersion;
+            $uri = $uri . '?minorversion=' . $minorVersion;
         }
 
         return $this->request('POST', $uri, $payload);
@@ -180,7 +180,7 @@ class DataService
         $uri = $this->getRequestUrl($this->entity) . '?operation=update';
 
         if ($minorVersion !== null) {
-            $uri = $uri . '&minorversion=' . $minorVersion;
+            $uri = $uri . '?minorversion=' . $minorVersion;
         }
 
         return $this->request('POST', $uri, $payload);
