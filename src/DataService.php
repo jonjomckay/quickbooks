@@ -4,6 +4,8 @@ namespace ActiveCollab\Quickbooks;
 
 use ActiveCollab\Quickbooks\Quickbooks;
 use ActiveCollab\Quickbooks\Data\Entity;
+use Guzzle\Log\LogAdapterInterface;
+use Guzzle\Plugin\Log\LogPlugin;
 use Guzzle\Service\Client as GuzzleClient;
 use ActiveCollab\Quickbooks\Data\QueryResponse;
 use Guzzle\Http\Exception\BadResponseException;
@@ -18,6 +20,11 @@ class DataService
      * @var string
      */
     protected $consumer_key, $consumer_key_secret, $access_token, $access_token_secret, $realmId;
+
+    /**
+     * @var LogAdapterInterface
+     */
+    protected $logAdapter;
 
     /**
      * @var string|null
@@ -37,14 +44,16 @@ class DataService
      * @param string $access_token
      * @param string $access_token_secret
      * @param string $realmId
+     * @param LogAdapterInterface $logAdapter
      */
-    public function __construct($consumer_key, $consumer_key_secret, $access_token, $access_token_secret, $realmId)
+    public function __construct($consumer_key, $consumer_key_secret, $access_token, $access_token_secret, $realmId, LogAdapterInterface $logAdapter = null)
     {
         $this->consumer_key = $consumer_key;
         $this->consumer_key_secret = $consumer_key_secret;
         $this->access_token = $access_token;
         $this->access_token_secret = $access_token_secret;
         $this->realmId = $realmId;
+        $this->logAdapter = $logAdapter;
     }
 
     /**
@@ -64,7 +73,13 @@ class DataService
      */
     public function createHttpClient()
     {
-        return new GuzzleClient();
+        $client = new GuzzleClient();
+
+        if ($this->logAdapter) {
+            $client->addSubscriber(new LogPlugin($this->logAdapter));
+        }
+
+        return $client;
     }
 
     /**
