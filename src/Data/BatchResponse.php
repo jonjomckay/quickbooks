@@ -21,7 +21,18 @@ class BatchResponse implements \IteratorAggregate, \Countable, \JsonSerializable
     public function __construct(array $data)
     {
         foreach ($data as $rows) {
-            $this->entities[] = new BatchEntity($rows[0], $rows['bId']);
+            $keys = array_keys($rows);
+            $values = array_values($rows);
+            $rowData = isset($values[0]) ? $values[0] : [];
+
+            switch($keys[0]) {
+                case 'QueryResponse':
+                    $this->entities[$rows['bId']] = new QueryResponse($rowData);
+                    break;
+                default:
+                    $this->entities[$rows['bId']] = new Entity($rowData);
+                    break;
+            }
         }
     }
 

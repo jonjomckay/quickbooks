@@ -309,7 +309,7 @@ class DataService
                     break;
                 case 'BatchItemResponse':
                     $response = new BatchResponse($data);
-                    default;
+                    break;
                 default:
                     $response = new Entity($data);
                     break;
