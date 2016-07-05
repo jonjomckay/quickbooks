@@ -2,6 +2,7 @@
 
 namespace ActiveCollab\Quickbooks;
 
+use ActiveCollab\Quickbooks\Data\BatchResponse;
 use ActiveCollab\Quickbooks\Quickbooks;
 use ActiveCollab\Quickbooks\Data\Entity;
 use Guzzle\Log\LogAdapterInterface;
@@ -238,6 +239,21 @@ class DataService
     }
 
     /**
+     * Creates a batch request
+     *
+     * @param array $payload
+     * @return Entity|QueryResponse
+     * @throws \Exception
+     */
+    public function batch(array $payload)
+    {
+        $uri = $this->getRequestUrl($this->entity);
+
+        return $this->request('POST', $uri, $payload);
+    }
+
+
+    /**
      * Return headers for request
      *
      * @param  string           $method
@@ -285,17 +301,30 @@ class DataService
             $keys = array_keys($response);
             $values = array_values($response);
 
-            $is_query_response = isset($keys[0]) && $keys[0] == 'QueryResponse';
             $data = isset($values[0]) ? $values[0] : [];
 
-            return $is_query_response ? new QueryResponse($data) : new Entity($data);
+            switch($keys[0]) {
+                case 'QueryResponse':
+                    $response = new QueryResponse($data);
+                    break;
+                case 'BatchItemResponse':
+                    $response = new BatchResponse($data);
+                    default;
+                default:
+                    $response = new Entity($data);
+                    break;
+            }
+
+            return $response;
         } catch (BadResponseException $e) {
             $response = $e->getResponse();
             $body = $response->getBody();
             $statusCode = $response->getStatusCode();
 
             throw new \Exception(
-                "Received error [$body] with status code [$statusCode] when sending request."
+                "Received error [$body] with status code [$statusCode] when sending request.",
+                $statusCode,
+                $e
             );
         }
     }
