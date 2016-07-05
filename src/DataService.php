@@ -242,12 +242,17 @@ class DataService
      * Creates a batch request
      *
      * @param array $payload
+     * @param int $minorVersion
      * @return Entity|QueryResponse
      * @throws \Exception
      */
-    public function batch(array $payload)
+    public function batch(array $payload, $minorVersion = null)
     {
         $uri = $this->getRequestUrl($this->entity);
+
+        if ($minorVersion !== null) {
+            $uri = $uri . '?minorversion=' . $minorVersion;
+        }
 
         return $this->request('POST', $uri, $payload);
     }
